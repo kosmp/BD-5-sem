@@ -1,0 +1,10 @@
+UPDATE Users
+SET password = 'gfdgddfgfdgf'
+WHERE username = 'user1';
+
+UPDATE Clients
+SET first_name = 'New name gfgfdgf', last_name = 'New last name gfdgfdgfbfdg'
+WHERE user_id = 1;
+
+UPDATE Books
+SET price = price::numeric * 0.9;

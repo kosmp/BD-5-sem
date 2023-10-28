@@ -1,0 +1,108 @@
+DO $$ 
+DECLARE 
+    r RECORD;
+BEGIN
+    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()) LOOP
+        EXECUTE 'DROP TABLE IF EXISTS ' || r.tablename || ' CASCADE';
+    END LOOP;
+END $$;
+
+DROP TABLE IF EXISTS "OrderBooks";
+
+CREATE TABLE PickUpPoints (
+    id SERIAL PRIMARY KEY,
+    street VARCHAR(50) NOT NULL,
+    house_num INT NOT NULL,
+    housing INT
+);
+
+CREATE TABLE Users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(50) NOT NULL,
+    is_superuser BOOLEAN NOT NULL
+);
+
+CREATE TABLE Clients (
+    id SERIAL PRIMARY KEY,
+    user_id INT UNIQUE,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    phone_number VARCHAR(50) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(id)
+);
+
+CREATE TABLE Orders (
+    id SERIAL PRIMARY KEY,
+    date DATE NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    client_id INT NOT NULL,
+    pick_up_point_id INT UNIQUE,
+    FOREIGN KEY (client_id) REFERENCES Clients(id),
+    FOREIGN KEY (pick_up_point_id) REFERENCES PickUpPoints(id)
+);
+
+CREATE TABLE Authors (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    birthday_date DATE NOT NULL,
+    biography VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE PublishingHouses (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    address VARCHAR(50) NOT NULL,
+    phone_number VARCHAR(50) NOT NULL,
+    email VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE Books (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(50) NOT NULL,
+    author_id INT NOT NULL,
+    publishing_house_id INT NOT NULL,
+    creation_year VARCHAR(50) NOT NULL,
+    isbn INT NOT NULL,
+    price NUMERIC(8, 2) NOT NULL,
+    quantity INT NOT NULL,
+    FOREIGN KEY (author_id) REFERENCES Authors(id),
+    FOREIGN KEY (publishing_house_id) REFERENCES PublishingHouses(id)
+);
+
+CREATE TABLE Genres (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE Reviews (
+    id SERIAL PRIMARY KEY,
+    review_text VARCHAR(500) NOT NULL,
+    add_date DATE NOT NULL,
+    book_id INT NOT NULL,
+    FOREIGN KEY (book_id) REFERENCES Books(id)
+);
+
+CREATE TABLE BookGenres (
+    id SERIAL PRIMARY KEY,
+    genre_id INT NOT NULL,
+    book_id INT NOT NULL,
+    FOREIGN KEY (genre_id) REFERENCES Genres(id),
+    FOREIGN KEY (book_id) REFERENCES Books(id)
+);
+
+CREATE TABLE "OrderBooks" (
+    id SERIAL PRIMARY KEY,
+    book_id INT NOT NULL,
+    order_id INT NOT NULL,
+    quantity INT NOT NULL,
+    FOREIGN KEY (book_id) REFERENCES Books(id),
+    FOREIGN KEY (order_id) REFERENCES Orders(id)
+);
+
+CREATE INDEX idx_books_title ON Books (title);
+CREATE INDEX idx_authors_fullname ON Authors (first_name, last_name);
+
+ALTER TABLE Users ADD CONSTRAINT unique_username UNIQUE (username);
