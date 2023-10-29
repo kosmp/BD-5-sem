@@ -1,0 +1,4 @@
+-- Найти клиентов, у которых есть заказы
+SELECT first_name, last_name
+FROM Clients c
+WHERE EXISTS (SELECT 1 FROM Orders o WHERE c.id = o.client_id);

@@ -1,0 +1,18 @@
+SELECT Orders.id AS order_id, Orders.date, Clients.first_name, Clients.last_name
+FROM Orders
+LEFT JOIN Clients ON Orders.client_id = Clients.id;
+
+-----------------------------
+
+SELECT title, 'Book' AS type FROM Books
+UNION
+SELECT title, 'Genre' AS type FROM Genres;
+
+-----------------------------
+
+SELECT title, price,
+       CASE
+         WHEN price > 15 THEN 'Дорогая'
+         WHEN price <= 15 THEN 'Дешевая'
+       END AS price_category
+FROM Books;

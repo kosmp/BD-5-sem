@@ -1,0 +1,8 @@
+-- Вернуть статус заказа в виде текста
+SELECT id, 
+       CASE
+           WHEN status = 'В обработке' THEN 'Ожидается'
+           WHEN status = 'Доставлен' THEN 'Завершен'
+           ELSE 'Неизвестно'
+       END AS order_status
+FROM Orders;

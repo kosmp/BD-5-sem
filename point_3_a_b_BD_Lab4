@@ -1,0 +1,5 @@
+SELECT Clients.first_name, Clients.last_name, 
+       SUM(COUNT(Orders.id)) OVER (PARTITION BY Clients.id) AS total_orders
+FROM Clients
+LEFT JOIN Orders ON Clients.id = Orders.client_id
+GROUP BY Clients.first_name, Clients.last_name, Clients.id;

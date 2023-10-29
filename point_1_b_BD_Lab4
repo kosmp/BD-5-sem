@@ -1,0 +1,4 @@
+SELECT book_id, AVG(quantity) AS avg_quantity
+FROM "OrderBooks"
+GROUP BY book_id
+HAVING AVG(quantity) > 2;

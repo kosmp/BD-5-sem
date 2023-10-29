@@ -1,0 +1,1 @@
+SELECT * FROM Clients WHERE first_name LIKE 'И%' AND phone_number LIKE '%123%';

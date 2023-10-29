@@ -1,0 +1,34 @@
+SELECT Books.title, Authors.first_name, Authors.last_name
+FROM Books
+INNER JOIN Authors ON Books.author_id = Authors.id;
+
+--------------------------------
+
+SELECT Clients.first_name, Clients.last_name, Orders.date
+FROM Clients
+LEFT JOIN Orders ON Clients.id = Orders.client_id;
+
+--------------------------------
+
+SELECT Clients.first_name, Clients.last_name, Orders.date
+FROM Clients
+RIGHT JOIN Orders ON Clients.id = Orders.client_id;
+
+--------------------------------
+
+SELECT Clients.first_name, Clients.last_name, Orders.date
+FROM Clients
+FULL JOIN Orders ON Clients.id = Orders.client_id;
+
+--------------------------------
+
+SELECT Authors.first_name AS author_first_name, Authors.last_name AS author_last_name, Books.title AS book_title
+FROM Authors
+CROSS JOIN Books;
+
+--Self join--
+
+SELECT c1.first_name AS first_name1, c1.last_name AS last_name1, c2.first_name AS first_name2, c2.last_name AS last_name2
+FROM Clients c1
+INNER JOIN Clients c2 ON c1.email = c2.email
+
