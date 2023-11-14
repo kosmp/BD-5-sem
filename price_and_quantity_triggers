@@ -1,0 +1,89 @@
+-- Создание триггера для обновления total_price в Orders
+CREATE OR REPLACE FUNCTION update_order_total_price()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Обновление total_price в Orders после вставки новой записи в OrderBooks
+    UPDATE Orders
+    SET total_price = COALESCE(total_price, 0) + NEW.total_price
+    WHERE id = NEW.order_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Триггер срабатывает после INSERT в "OrderBooks"
+CREATE TRIGGER update_order_total_price_after_insert
+AFTER INSERT ON "OrderBooks"
+FOR EACH ROW
+EXECUTE FUNCTION update_order_total_price();
+
+-- Создание триггера для обновления total_price в Orders после удаления записи из OrderBooks
+CREATE OR REPLACE FUNCTION update_order_total_price_after_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Обновление total_price в Orders после удаления записи из OrderBooks
+    UPDATE Orders
+    SET total_price = COALESCE(total_price, 0) - OLD.total_price
+    WHERE id = OLD.order_id;
+
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Триггер срабатывает после DELETE из "OrderBooks"
+CREATE TRIGGER update_order_total_price_after_delete
+AFTER DELETE ON "OrderBooks"
+FOR EACH ROW
+EXECUTE FUNCTION update_order_total_price_after_delete();
+
+
+-- Создание триггера для OrderBooks
+CREATE OR REPLACE FUNCTION calculate_total_order_books_price()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Обновление total_price в OrderBooks
+    NEW.total_price = NEW.quantity * (SELECT price FROM Books WHERE id = NEW.book_id);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER calculate_total_order_books_price_trigger
+BEFORE INSERT ON "OrderBooks"
+FOR EACH ROW
+EXECUTE FUNCTION calculate_total_order_books_price();
+
+
+-- Создание триггера на уменьшение количества книг при заказе
+CREATE OR REPLACE FUNCTION update_book_quantity()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE Books
+    SET quantity = quantity - NEW.quantity
+    WHERE id = NEW.book_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_book_quantity_trigger
+AFTER INSERT ON "OrderBooks"
+FOR EACH ROW
+EXECUTE PROCEDURE update_book_quantity();
+
+-- Создание триггера на увеличение количества книг при удалении заказа
+CREATE OR REPLACE FUNCTION increase_book_quantity()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE Books
+    SET quantity = quantity + OLD.quantity
+    WHERE id = OLD.book_id;
+
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER increase_book_quantity_trigger
+AFTER DELETE ON "OrderBooks"
+FOR EACH ROW
+EXECUTE PROCEDURE increase_book_quantity();
+

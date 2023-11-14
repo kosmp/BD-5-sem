@@ -7,6 +7,17 @@ BEGIN
     END LOOP;
 END $$;
 
+TRUNCATE "OrderBooks" RESTART IDENTITY;
+
+DO $$ 
+DECLARE 
+    r RECORD;
+BEGIN
+    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()) LOOP
+        EXECUTE 'DROP TABLE IF EXISTS ' || r.tablename || ' CASCADE';
+    END LOOP;
+END $$;
+
 DROP TABLE IF EXISTS "OrderBooks";
 
 CREATE TABLE PickUpPoints (
@@ -20,7 +31,7 @@ CREATE TABLE Users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
     password VARCHAR(50) NOT NULL,
-    is_superuser BOOLEAN NOT NULL
+    is_superuser BOOLEAN DEFAULT FALSE NOT NULL
 );
 
 CREATE TABLE Clients (
@@ -39,6 +50,7 @@ CREATE TABLE Orders (
     status VARCHAR(50) NOT NULL,
     client_id INT NOT NULL,
     pick_up_point_id INT UNIQUE,
+    total_price INT,
     FOREIGN KEY (client_id) REFERENCES Clients(id),
     FOREIGN KEY (pick_up_point_id) REFERENCES PickUpPoints(id)
 );
@@ -98,8 +110,30 @@ CREATE TABLE "OrderBooks" (
     book_id INT NOT NULL,
     order_id INT NOT NULL,
     quantity INT NOT NULL,
+    total_price INT,
     FOREIGN KEY (book_id) REFERENCES Books(id),
     FOREIGN KEY (order_id) REFERENCES Orders(id)
+);
+
+CREATE TABLE OrdersLog (
+    log_id SERIAL PRIMARY KEY,
+    log_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    action VARCHAR(10) NOT NULL,
+    order_id INT NOT NULL,
+    date DATE NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    client_id INT NOT NULL,
+    pick_up_point_id INT UNIQUE
+);
+
+CREATE TABLE ReviewsLog (
+    log_id SERIAL PRIMARY KEY,
+    log_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    action VARCHAR(10) NOT NULL,
+    review_id INT NOT NULL,
+    review_text VARCHAR(500) NOT NULL,
+    add_date DATE NOT NULL,
+    book_id INT NOT NULL
 );
 
 CREATE INDEX idx_books_title ON Books (title);

@@ -1,0 +1,24 @@
+-- Тригеры логирования должны срабатывать на INSERT в Orders и на INSERT в Reviews
+-- Просмотр логов заказов
+SELECT * FROM OrdersLog;
+
+-- Тригеры логирования также должны срабатывать на INSERT в Reviews
+-- Просмотр логов отзывов
+SELECT * FROM ReviewsLog;
+
+-- Проверка работы тригера на изменение quantity в Books при заказе в OrderBooks
+SELECT * FROM Books
+
+-- Проверка работы тригера на подсчёт total_price в OrderBooks
+SELECT * FROM "OrderBooks"
+
+-- Проверка работы тригера на подсчёт total_price в Orders после INSERT в OrderBooks
+SELECT * FROM Orders
+
+DELETE FROM "OrderBooks" WHERE order_id = 1;
+
+-- Проверка работы тригера на подсчёт total_price в Orders после DELETE из OrderBooks
+SELECT * FROM Orders
+
+-- Проверка работы тригера на возвращение книг в quantity в Books при DELETE в OrderBooks
+SELECT * FROM Books

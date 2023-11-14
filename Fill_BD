@@ -1,7 +1,7 @@
 INSERT INTO Users (username, password, is_superuser) VALUES
     ('user1', 'password1', TRUE),
     ('user2', 'password2', FALSE);
-	
+
 INSERT INTO Clients (user_id, first_name, last_name, email, phone_number) VALUES
     (1, 'Иван', 'Иванов', 'ivan@example.com', '123-456-7890'),
     (2, 'Петр', 'Петров', 'petr@example.com', '987-654-3210');
@@ -10,10 +10,6 @@ INSERT INTO PickUpPoints (street, house_num, housing) VALUES
     ('Улица 1', 123, 0),
     ('Улица 2', 456, 0),
     ('Улица 3', 789, 1);
-
-INSERT INTO Orders (date, status, client_id, pick_up_point_id) VALUES
-    ('2023-10-27', 'В обработке', 1, NULL),
-    ('2023-10-28', 'Доставлен', 2, 3);
 
 INSERT INTO Authors (first_name, last_name, birthday_date, biography) VALUES
     ('Автор 1', 'Иванов', '1980-01-15', 'Биография 1'),
@@ -26,19 +22,23 @@ INSERT INTO PublishingHouses (name, address, phone_number, email) VALUES
 INSERT INTO Books (title, author_id, publishing_house_id, creation_year, isbn, price, quantity) VALUES
     ('Книга 1', 1, 1, '2005', 12345, 20.00, 100),
     ('Книга 2', 2, 2, '2010', 98765, 15.00, 50);
-
+	
 INSERT INTO Genres (title) VALUES
     ('Жанр 1'),
     ('Жанр 2');
-
-INSERT INTO Reviews (review_text, add_date, book_id) VALUES
-    ('Отзыв 1', '2023-10-27', 1),
-    ('Отзыв 2', '2023-10-28', 2);
-
+	
 INSERT INTO BookGenres (genre_id, book_id) VALUES
     (1, 1),
     (2, 2);
-
+	
+INSERT INTO Orders (date, status, client_id, pick_up_point_id) VALUES
+    ('2023-10-27', 'Pending', 1, 1),
+    ('2023-10-28', 'Shipped', 2, 2);
+	
 INSERT INTO "OrderBooks" (book_id, order_id, quantity) VALUES
     (1, 1, 2),
     (2, 2, 3);
+
+INSERT INTO Reviews (review_text, add_date, book_id) VALUES
+    ('Review 1', '2023-10-27', 1),
+    ('Review 2', '2023-10-28', 2);

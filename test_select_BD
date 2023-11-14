@@ -3,10 +3,9 @@ SELECT * FROM Users;
 SELECT * FROM Clients;
 
 SELECT * FROM "OrderBooks";
-	
+
 SELECT * FROM Books WHERE price > 20.00;
 
 SELECT review_text, add_date FROM Reviews;
 
 SELECT id, price FROM Books;
-
