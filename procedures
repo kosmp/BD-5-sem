@@ -1,0 +1,38 @@
+-- Процедура для добавления нового отзыва
+CREATE OR REPLACE PROCEDURE add_new_review(_review_text VARCHAR(500), _add_date DATE, _book_id INT)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO Reviews(review_text, add_date, book_id) VALUES (_review_text, _add_date, _book_id);
+END $$;
+
+CALL add_new_review('Какой-то хороший отзыв', '2023-11-28', 1);
+
+CREATE OR REPLACE PROCEDURE insert_user_and_client(
+    _username VARCHAR(50), 
+    _password VARCHAR(50), 
+    _is_superuser BOOLEAN, 
+    _first_name VARCHAR(50), 
+    _last_name VARCHAR(50), 
+    _email VARCHAR(50), 
+    _phone_number VARCHAR(50)
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE 
+    _user_id INT;
+BEGIN
+    -- Insert a new user and get the id of the new user
+    INSERT INTO Users (username, password, is_superuser) VALUES (_username, _password, _is_superuser)
+    RETURNING id INTO _user_id;
+
+    -- Insert a new client with the id of the new user
+    INSERT INTO Clients (user_id, first_name, last_name, email, phone_number) VALUES (_user_id, _first_name, _last_name, _email, _phone_number);
+END $$;
+
+
+CALL insert_user_and_client('user3', 'password3', FALSE, 'Алексей', 'Смирнов', 'alexey@example.com', '321-654-9870');
+CALL insert_user_and_client('user4', 'password4', TRUE, 'Мария', 'Петрова', 'maria@example.com', '654-321-0987');
+
+-- SELECT * FROM reviews
+SELECT * FROM clients
