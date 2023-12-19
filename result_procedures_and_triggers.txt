@@ -1,0 +1,177 @@
+CREATE OR REPLACE FUNCTION CheckClientExistence()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM Clients WHERE Id = NEW.Client_Id) THEN
+    RAISE EXCEPTION 'Клиент с ID % не существует.', NEW.Client_Id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER ValidateClientBeforeOrder
+BEFORE INSERT ON Orders
+FOR EACH ROW
+EXECUTE FUNCTION CheckClientExistence();
+
+CREATE OR REPLACE FUNCTION CreateDeliveryEntryWithDelay()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO Delivery (Delivery_date, Order_Id)
+  VALUES (CURRENT_DATE + INTERVAL '10 days', NEW.Id);
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER AddDeliveryEntryWithDelay
+AFTER INSERT ON Orders
+FOR EACH ROW
+EXECUTE FUNCTION CreateDeliveryEntryWithDelay();
+
+CREATE OR REPLACE FUNCTION IncreaseSalaryOnPositiveReview()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.Evaluation >= 4 THEN
+    UPDATE Employees
+    SET Salary = Salary * 1.01;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER IncreaseSalaryOnPositiveReviewTrigger
+AFTER INSERT ON Reviews
+FOR EACH ROW
+EXECUTE FUNCTION IncreaseSalaryOnPositiveReview();
+
+CREATE OR REPLACE FUNCTION InsertUserWithRole()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.Role_Id IS NULL THEN
+    NEW.Role_Id := 1;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER BeforeInsertUser
+BEFORE INSERT ON Users
+FOR EACH ROW
+EXECUTE FUNCTION InsertUserWithRole();
+
+
+
+
+
+
+CREATE OR REPLACE PROCEDURE AddUser(
+  IN p_FirstName VARCHAR(50),
+  IN p_LastName VARCHAR(50),
+  IN p_Phone CHAR(13),
+  IN p_Password VARCHAR(50),
+  IN p_RoleId INT,
+  OUT p_UserId INT
+)
+AS $$
+BEGIN
+  INSERT INTO Users (First_Name, Last_Name, Phone, Password, Role_Id)
+  VALUES (p_FirstName, p_LastName, p_Phone, p_Password, p_RoleId)
+  RETURNING Id INTO p_UserId;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE PROCEDURE AddFruit(
+  p_Name VARCHAR(50),
+  p_CreationDate DATE,
+  p_Price INT,
+  p_ExpirationDate INT,
+  p_ProducerId INT
+)
+AS $$
+BEGIN
+  INSERT INTO Fruits (Name, Creation_date, Price, Expiration_date, Producer_Id)
+  VALUES (p_Name, p_CreationDate, p_Price, p_ExpirationDate, p_ProducerId);
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE PROCEDURE AddReview(
+  IN p_ReviewText TEXT,
+  IN p_Evaluation INT,
+  IN p_ClientId INT,
+  IN p_FruitId INT
+)
+AS $$
+BEGIN
+  INSERT INTO Reviews (review_text, Evaluation, Client_Id, Fruit_Id)
+  VALUES (p_ReviewText, p_Evaluation, p_ClientId, p_FruitId);
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE PROCEDURE UpdateFruitPriceByPercentage(
+  IN p_FruitId INT,
+  IN p_Percentage DECIMAL
+)
+AS $$
+BEGIN
+  UPDATE Fruits
+  SET Price = p_Percentage
+  WHERE Id = p_FruitId;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE PROCEDURE GetTotalOrderAmountForClient(
+  IN p_ClientId INT,
+  OUT p_TotalAmount INT
+)
+AS $$
+BEGIN
+  SELECT SUM(Total_price)
+  INTO p_TotalAmount
+  FROM Orders
+  WHERE Client_Id = p_ClientId;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE PROCEDURE GetEmployeeInfo(
+  IN p_EmployeeId INT,
+  OUT p_EmployeeName VARCHAR(100),
+  OUT p_WorkStartTime TIME,
+  OUT p_WorkEndTime TIME
+)
+AS $$
+BEGIN
+  SELECT U.First_Name || ' ' || U.Last_Name, W.start_work, W.end_work
+  INTO p_EmployeeName, p_WorkStartTime, p_WorkEndTime
+  FROM Employees E
+  JOIN Users U ON E.User_Id = U.Id
+  JOIN Work_time W ON E.Work_time_Id = W.Id
+  WHERE E.Id = p_EmployeeId;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE PROCEDURE UpdateUserRole(
+  IN p_UserId INT,
+  IN p_NewRoleId INT
+)
+AS $$
+BEGIN
+  UPDATE Users
+  SET Role_Id = p_NewRoleId
+  WHERE Id = p_UserId;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE PROCEDURE DeleteLowRatedReviewsForAllFruits()
+AS $$
+BEGIN
+  DELETE FROM Reviews
+  WHERE Evaluation <= 2;
+END;
+$$ LANGUAGE plpgsql;

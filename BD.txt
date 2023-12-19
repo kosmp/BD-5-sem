@@ -1,0 +1,671 @@
+create database Fruit_Shop
+
+CREATE TABLE Producers
+(
+	Id serial primary key not null,
+	Name varchar(50) not null,
+	Country varchar(50) not null
+);
+
+CREATE TABLE Fruits(
+	Id serial primary key not null,
+	Name varchar(50) not null,
+	Creation_date date not null, 
+	Price integer not null,
+	Expiration_date integer not null,
+	Producer_Id integer not null,
+	FOREIGN KEY (Producer_Id) REFERENCES Producers (Id) ON DELETE CASCADE
+);
+
+CREATE TABLE Roles (
+	Id serial primary key not null,
+	Role_Name VARCHAR(25) UNIQUE NOT NULL
+);
+
+CREATE TABLE Users (
+	Id serial primary key not null,
+	First_Name VARCHAR(50) NOT NULL,
+   	Last_Name VARCHAR(50) NOT NULL,
+    	Phone CHAR(13) CHECK (Phone LIKE '+375[0-9]{9}') NOT NULL,
+    	Password VARCHAR(50) NOT NULL,
+	Role_Id integer NOT NULL,
+	FOREIGN KEY (Role_Id) REFERENCES Roles (Id) ON DELETE CASCADE
+);
+
+CREATE TABLE Clients (
+	Id serial primary key not null,
+	Address VARCHAR(100) NOT NULL,
+   	User_Id integer unique NOT NULL,
+	FOREIGN KEY (User_Id) REFERENCES Users (Id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE Orders (
+	Id SERIAL primary key not null,
+	Creation_date DATE NOT NULL,
+    	Total_price INT NOT NULL,
+   	Item_quantity INT NOT NULL,
+	Client_Id integer NOT NULL,
+	FOREIGN KEY (Client_Id) REFERENCES Clients (Id) ON DELETE CASCADE,
+  	Fruit_Id integer NOT NULL,
+	FOREIGN KEY (Fruit_Id) REFERENCES Fruits (Id) ON DELETE CASCADE
+    
+); 
+
+CREATE TABLE Reviews (
+	Id SERIAL primary key not null,
+	review_text TEXT NOT NULL,
+    	Evaluation INT NOT NULL,
+   	Client_Id integer NOT NULL,
+	FOREIGN KEY (Client_Id) REFERENCES Clients (Id) ON DELETE CASCADE,
+  	Fruit_Id integer NOT NULL,
+	FOREIGN KEY (Fruit_Id) REFERENCES Fruits (Id) ON DELETE CASCADE
+);
+
+CREATE TABLE Work_time (
+	Id SERIAL primary key not null,
+	start_work time not null,
+	end_work time not null
+);
+
+CREATE TABLE Employees (
+	Id SERIAL primary key not null,
+	Salary INT NOT NULL,
+	User_Id integer NOT NULL,
+	FOREIGN KEY (User_Id) REFERENCES Users (Id) ON DELETE CASCADE,
+  	Work_time_Id integer NOT NULL,
+	FOREIGN KEY (Work_time_Id) REFERENCES Work_Time (Id) ON DELETE CASCADE
+);
+
+CREATE TABLE Delivery (
+	Id SERIAL primary key not null,
+    	Delivery_date timestamp NOT NULL,
+	Order_Id integer unique NOT NULL,
+	FOREIGN KEY (Order_Id) REFERENCES Orders (Id) ON DELETE CASCADE
+);
+
+CREATE TABLE Positions (
+	Id SERIAL primary key not null,
+	Name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE Positions_Employees (
+	Id SERIAL primary key not null,
+	Position_Id integer NOT NULL,
+	FOREIGN KEY (Position_Id) REFERENCES Positions (Id) ON DELETE CASCADE,
+  	Employee_Id integer NOT NULL,
+	FOREIGN KEY (Employee_Id) REFERENCES Employees (Id) ON DELETE CASCADE
+);
+
+INSERT INTO Producers (Name, Country)
+VALUES 
+  ('Apple Orchard', 'USA'),
+  ('Citrus Grove', 'Spain'),
+  ('Berry Farm', 'Canada'),
+  ('Tropical Delights', 'Brazil'),
+  ('Cherry Blossom', 'Japan'),
+  ('Grape Vineyard', 'France'),
+  ('Kiwi Plantation', 'New Zealand'),
+  ('Peach Grove', 'Italy'),
+  ('Banana Plantation', 'Costa Rica'),
+  ('Mango Orchard', 'India');
+
+INSERT INTO Fruits (Name, Creation_date, Price, Expiration_date, Producer_Id)
+VALUES 
+  ('Apple', '2023-09-17', 2, 300, 1),
+  ('Orange', '2023-10-12', 3, 140, 2),
+  ('Blueberry', '2023-09-10', 50, 7, 3),
+  ('Mango', '2023-08-25', 4, 100, 4),
+  ('Cherry', '2023-10-07', 6, 50, 5),
+  ('Grapes', '2023-10-11', 7, 100, 6),
+  ('Kiwi', '2023-09-23', 8, 140, 7),
+  ('Peach', '2023-09-12', 4, 140, 8),
+  ('Banana', '2023-10-07', 3, 70, 9),
+  ('Pineapple', '2023-08-30', 6, 70, 10),
+  ('Pear', '2023-09-12', 4, 210, 1),
+  ('Lemon', '2023-10-14', 3, 140, 2),
+  ('Raspberry', '2023-10-11', 6, 70, 3),
+  ('Papaya', '2023-10-13', 5, 100, 4),
+  ('Plum', '2023-09-10', 4, 70, 5),
+  ('Blackberries', '2023-09-22', 7, 70, 6),
+  ('Strawberry', '2023-10-17', 5, 70, 7),
+  ('Apricot', '2023-09-27', 4, 140, 8),
+  ('Coconut', '2023-09-26', 5, 300, 9),
+  ('Guava', '2023-10-15', 5, 70, 10);
+
+INSERT INTO work_time (start_work, end_work)
+VALUES 
+	('00:00', '08:00'),
+   	('08:00', '16:00'),
+	('16:00', '00:00')
+
+; 
+
+INSERT INTO Positions (Name)
+VALUES 
+  ('Manager'),
+  ('Sales Representative'),
+  ('Cashier'),
+  ('Storekeeper'),
+  ('Quality Control Specialist'),
+  ('Delivery Driver'),
+  ('Packer'),
+  ('Accountant'),
+  ('Assistant Manager'),
+  ('Warehouse Supervisor');
+
+
+INSERT INTO Roles (role_name)
+VALUES 
+	('Admin'),
+	('Client'),
+	('Employee');
+
+ALTER TABLE users
+DROP COLUMN phone
+
+
+
+ALTER TABLE Users
+ADD Phone VARCHAR(13) NOT NULL
+
+INSERT INTO users (first_name, last_name, phone, password, role_ID)
+VALUES
+  ('Maria', 'Smirnova', '+375292222252', 'p54g45g45gord222', 2),
+  ('Ekaterina', 'Kozlova', '+375454444444', 'password444', 2), 
+  ('Olga', 'Popova', '+375296666656', 'regrd6re445g66', 3),
+  ('Andrey', 'Sidorov', '+375297767777', 'pas34ff34few77', 2), 
+  ('Tatyana', 'Ivanova', '+375298885888', 'pgrdrd888', 1),
+  ('Sergey', 'Kuznetsov', '+375294554864', '54g5445gvd5', 1),
+  ('Alexey', 'Petrov', '+375443323333', 'passw45g54gord333', 3), 
+  ('Nadezhda', 'Petrova', '+375449995999', 'pa43gf34grd999', 3), 
+  ('Anna', 'Sergeeva', '+375443456898', 'pass23fsf23', 2), 
+  ('Mikhail', 'Semyonov', '+375257643241', 'p32rfsword987', 1), 
+  ('Elena', 'Nikolaeva', '+375251122233', '32fffewword111', 3), 
+  ('Denis', 'Kovalev', '+375442232545', '32ff23ord1122', 2), 
+  ('Oksana', 'Alexandrova', '+375293344556', 'passga32f33', 1),
+  ('Petr', 'Ivanov', '+375442233445', 'p54gr4ord111', 1);
+
+
+INSERT INTO Clients (Address, User_Id)
+VALUES 
+  ('53 Merry Circle', 16), 
+  ('946 American Trail', 17), 
+  ('53 Merry Circle', 19), 
+  ('49969 Mockingbird Lane', 24),
+  ('79 Dorton Hill', 27);
+
+INSERT INTO Orders (Creation_date, Total_price, Item_quantity, Client_Id, Fruit_Id)
+VALUES 
+  ('2023-10-17', 10, 2, 1, 21), 
+  ('2023-10-15', 15, 3, 2, 22), 
+  ('2023-10-14', 20, 4, 3, 22), 
+  ('2023-10-12', 12, 3, 3, 23),
+  ('2023-10-02', 18, 2, 4, 24), 
+  ('2023-10-02', 25, 5, 2, 25), 
+  ('2023-10-03', 14, 2, 2, 22),
+  ('2023-10-14', 16, 4, 2, 24), 
+  ('2023-10-15', 30, 6, 1, 23), 
+  ('2023-10-16', 9, 3, 5, 25); 
+
+INSERT INTO Reviews (review_text, Evaluation, Client_Id, Fruit_Id)
+VALUES
+  ('Excellent fruit!', 5, 1, 21),
+  ('Average taste', 3, 2, 23), 
+  ('Great!', 5, 1, 25), 
+  ('I didnt like it', 2, 3, 22), 
+  ('Good choice', 4, 2, 26), 
+  ('Fresh taste', 5, 3, 22), 
+  ('Not very', 2, 4, 24), 
+  ('Best fruit!', 5, 1, 23),
+  ('Interesting taste', 3, 2, 25), 
+  ('Very tasty', 4, 4, 23); 
+
+
+INSERT INTO Employees (Salary, User_Id, Work_time_Id)
+VALUES
+  (2000, 22, 1), 
+  (1800, 18, 2), 
+  (2200, 23, 3), 
+  (1900, 26, 3);
+
+
+INSERT INTO Delivery (Delivery_date, Order_Id)
+VALUES 
+  ('2023-10-17 10:00:00', 21), 
+  ('2023-10-18 11:30:00', 22), 
+  ('2023-10-19 13:15:00', 23), 
+  ('2023-10-20 14:45:00', 24), 
+  ('2023-10-21 16:30:00', 25),
+  ('2023-10-17 10:00:00', 26), 
+  ('2023-10-18 11:30:00', 27), 
+  ('2023-10-19 13:15:00', 28), 
+  ('2023-10-20 14:45:00', 29), 
+  ('2023-10-21 16:30:00', 30);
+
+INSERT INTO Positions_employees (position_Id, employee_Id)
+VALUES 
+  (1,1),
+  (2,1),
+  (3,1),
+  (1,2),
+  (4,2),
+  (10,2),
+  (8,3),
+  (7,3),
+  (6,4),
+  (2,4),
+  (5,4);
+
+CREATE UNIQUE INDEX idx_unique_user_first_name ON Users (first_name);
+CREATE INDEX idx_fruit_id ON Fruits (id);
+CREATE INDEX idx_producer_id ON Producers (id);
+CREATE INDEX idx_client_id ON Clients (id);
+CREATE INDEX idx_employee_id ON Employees (id);
+CREATE INDEX id_orser_id ON Orders (id);
+CREATE INDEX idx_position_id ON Positions (id);
+CREATE INDEX idx_review_id ON Reviews (id);
+
+
+SELECT
+id,
+first_name,
+last_name
+FROM
+users
+WHERE
+role_id = 2
+
+Select first_name, last_name, password from users where password like 'pas%'
+
+Select name, price from fruits order by price desc limit 10
+
+Select id, creation_date, client_id from orders order by client_id
+
+select * from fruits where producer_id in (1,2,4)
+
+select * from fruits where creation_date between '2023-09-01' and '2023-10-01'
+
+
+lab_4
+
+Запросы с несколькими условиями:
+
+select name, creation_date, price, expiration_date 
+from fruits
+where (name like 'A%' or name like 'B%') and creation_date between '2023-09-01' and '2023-10-01';
+
+SELECT * FROM Users 
+WHERE LENGTH(Password) > 8 AND NOT (Last_Name LIKE 'A%') AND Role_Id <> 1;
+
+SELECT * FROM Users 
+WHERE Role_Id = 2 AND (Phone LIKE '+37529%' OR Last_Name = 'Kozlova');
+
+SELECT * FROM Orders 
+WHERE Client_Id = 1 AND Total_price > 5 AND Item_quantity > 1;
+
+SELECT * FROM Orders
+WHERE Creation_date BETWEEN '2023-10-01' AND '2023-11-01' AND Total_price BETWEEN 15 AND 50;
+
+
+Запросы с вложенными конструкциями:
+
+SELECT * FROM Orders
+WHERE Creation_date = (SELECT Creation_date FROM Orders WHERE Client_Id = 5 LIMIT 1);
+
+SELECT * FROM Clients
+WHERE Id IN (SELECT Client_Id FROM Orders WHERE Total_price > 15);
+
+SELECT * FROM Fruits
+WHERE Producer_Id IN (SELECT Id FROM Producers WHERE Country = 'USA')
+  AND Price < (SELECT AVG(Price) FROM Fruits);
+
+SELECT CONCAT(First_Name, ' ', Last_Name) AS Customer_Name
+FROM Users
+WHERE Id IN (SELECT DISTINCT Client_Id+15 FROM Reviews);
+
+SELECT * FROM Fruits
+WHERE Id NOT IN (SELECT Fruit_Id FROM Reviews WHERE Evaluation > 4);
+
+SELECT F.Name AS Fruit_Name
+FROM Fruits F
+WHERE F.Id IN (SELECT O.Fruit_Id
+               FROM Orders O
+               GROUP BY O.Fruit_Id
+               HAVING COUNT(*) > 2);
+
+JOIN-запросы различных видов (INNER, OUTER, FULL, CROSS, SELF):
+
+CREATE VIEW OrderClientInfo AS
+SELECT O.Id AS OrderId, O.Creation_date, O.Total_price, C.Id AS ClientId, C.Address
+FROM Orders O
+INNER JOIN Clients C ON O.Client_Id = C.Id;
+
+SELECT * FROM OrderClientInfo;
+
+CREATE VIEW ClientOrderInfoLeft AS
+SELECT C.Id AS ClientId, C.Address, O.Id AS OrderId, O.Creation_date, O.Total_price
+FROM Clients C
+LEFT JOIN Orders O ON C.Id = O.Client_Id;
+
+SELECT * FROM ClientOrderInfoLeft;
+
+CREATE VIEW ClientOrderInfoFull AS
+SELECT C.Id AS ClientId, C.Address, O.Id AS OrderId, O.Creation_date, O.Total_price
+FROM Clients C
+FULL JOIN Orders O ON C.Id = O.Client_Id;
+
+SELECT * FROM ClientOrderInfoFull;
+
+CREATE VIEW FruitProducerCombinations AS
+SELECT F.Name AS FruitName, P.Name AS ProducerName
+FROM Fruits F
+CROSS JOIN Producers P;
+
+SELECT * FROM FruitProducerCombinations;
+
+CREATE VIEW EmployeeRelations AS
+SELECT E1.Id AS Employee1Id, E1.Salary AS Employee1Salary, E2.Id AS Employee2Id, E2.Salary AS Employee2Salary
+FROM Employees E1
+INNER JOIN Employees E2 ON E1.Work_time_Id = E2.Work_time_Id AND E1.Id <> E2.Id;
+
+SELECT * FROM EmployeeRelations;  --SELF-JOIN
+
+GROUP BY + агрегирующие функции:
+
+SELECT C.Id AS ClientId, SUM(O.Total_price) AS TotalOrderAmount
+FROM Clients C, Orders O
+WHERE C.Id = O.Client_Id
+GROUP BY C.Id
+ORDER BY TotalOrderAmount DESC
+LIMIT 1;
+
+SELECT Client_Id, AVG(Item_quantity) AS AverageItemQuantity
+FROM Orders
+GROUP BY Client_Id
+order by AverageItemQuantity;
+
+HAVING:
+
+SELECT Client_Id, SUM(Total_price) AS TotalOrderAmount
+FROM Orders
+GROUP BY Client_Id
+HAVING SUM(Total_price) > 10;
+
+SELECT Producer_Id, COUNT(*) AS TotalFruitCount
+FROM Fruits
+GROUP BY Producer_Id
+HAVING COUNT(*) < 15;
+
+UNION: 
+
+SELECT Id AS OrderId, Creation_date AS OrderDate
+FROM Orders
+UNION 
+SELECT Order_Id AS OrderId, Delivery_date AS DeliveryDate
+FROM Delivery;
+
+SELECT Id AS FruitId, Name, price
+FROM Fruits
+WHERE price = 4
+UNION all
+SELECT Id AS FruitId, Name, price
+FROM Fruits
+WHERE price = 7
+
+EXISTS:
+
+SELECT Name AS FruitName
+FROM Fruits F
+WHERE EXISTS (SELECT * FROM Reviews R WHERE R.Fruit_Id = F.Id);
+
+INSERT INTO SELECT:
+
+CREATE TABLE Temp_Clients (
+	Id serial primary key not null,
+	Address VARCHAR(100) NOT NULL
+   );
+
+INSERT INTO temp_clients (address)
+SELECT address
+FROM clients
+
+CASE:
+
+SELECT Id, Total_price,
+       CASE 
+           WHEN Total_price > 10 THEN 'High'
+           ELSE 'Low'
+       END AS PriceCategory
+FROM Orders;
+
+SELECT First_Name, Last_Name,
+       CASE
+         WHEN Role_Id = 1 THEN 'Admin'
+         WHEN Role_Id = 2 THEN 'Client'
+         ELSE 'Employee'
+       END AS Role
+FROM Users;
+
+SELECT Id AS OrderId, Item_quantity,
+       CASE
+         WHEN Item_quantity >= 4 THEN 'Large Order'
+         ELSE 'Small Order'
+       END AS OrderStatus
+FROM Orders;
+
+SELECT Id AS ReviewId, Evaluation,
+       CASE
+         WHEN Evaluation >= 4 THEN 'Positive'
+         ELSE 'Negative'
+       END AS ReviewCategory
+FROM Reviews;
+
+EXPLAIN:
+
+EXPLAIN SELECT * FROM Fruits
+WHERE Id NOT IN (SELECT Fruit_Id FROM Reviews WHERE Evaluation > 4);
+
+EXPLAIN Select first_name, last_name, password from users where password like 'pas%'
+
+EXPLAIN SELECT * FROM Fruits
+WHERE Producer_Id IN (SELECT Id FROM Producers WHERE Country = 'USA')
+  AND Price < (SELECT AVG(Price) FROM Fruits);
+
+
+
+
+************LAB_5**************************************************************************
+
+ТРИГГЕРЫ:
+
+
+CREATE OR REPLACE FUNCTION CheckClientExistence()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM Clients WHERE Id = NEW.Client_Id) THEN
+    RAISE EXCEPTION 'Клиент с ID % не существует.', NEW.Client_Id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER ValidateClientBeforeOrder
+BEFORE INSERT ON Orders
+FOR EACH ROW
+EXECUTE FUNCTION CheckClientExistence();
+
+CREATE OR REPLACE FUNCTION CreateDeliveryEntryWithDelay()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO Delivery (Delivery_date, Order_Id)
+  VALUES (CURRENT_DATE + INTERVAL '10 days', NEW.Id);
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER AddDeliveryEntryWithDelay
+AFTER INSERT ON Orders
+FOR EACH ROW
+EXECUTE FUNCTION CreateDeliveryEntryWithDelay();
+
+CREATE OR REPLACE FUNCTION IncreaseSalaryOnPositiveReview()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.Evaluation >= 4 THEN
+    UPDATE Employees
+    SET Salary = Salary * 1.01;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER IncreaseSalaryOnPositiveReviewTrigger
+AFTER INSERT ON Reviews
+FOR EACH ROW
+EXECUTE FUNCTION IncreaseSalaryOnPositiveReview();
+шт
+CREATE OR REPLACE FUNCTION InsertUserWithRole()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.Role_Id IS NULL THEN
+    NEW.Role_Id := 1;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER BeforeInsertUser
+BEFORE INSERT ON Users
+FOR EACH ROW
+EXECUTE FUNCTION InsertUserWithRole();
+
+
+
+ХРАНИМЫЕ ПРОЦЕДУРЫ:
+
+
+CREATE OR REPLACE PROCEDURE AddUser(
+  IN p_FirstName VARCHAR(50),
+  IN p_LastName VARCHAR(50),
+  IN p_Phone CHAR(13),
+  IN p_Password VARCHAR(50),
+  IN p_RoleId INT,
+  OUT p_UserId INT
+)
+AS $$
+BEGIN
+  INSERT INTO Users (First_Name, Last_Name, Phone, Password, Role_Id)
+  VALUES (p_FirstName, p_LastName, p_Phone, p_Password, p_RoleId)
+  RETURNING Id INTO p_UserId;
+END;
+$$ LANGUAGE plpgsql;
+
+CALL AddUser('John', 'Doe', '+375123456789', 'password123', 3, null);
+
+
+CREATE OR REPLACE PROCEDURE AddFruit(
+  p_Name VARCHAR(50),
+  p_CreationDate DATE,
+  p_Price INT,
+  p_ExpirationDate INT,
+  p_ProducerId INT
+)
+AS $$
+BEGIN
+  INSERT INTO Fruits (Name, Creation_date, Price, Expiration_date, Producer_Id)
+  VALUES (p_Name, p_CreationDate, p_Price, p_ExpirationDate, p_ProducerId);
+END;
+$$ LANGUAGE plpgsql;
+
+CALL AddFruit('Blue Apple', '2023-11-01'::DATE, 2, 7, 1);
+
+CREATE OR REPLACE PROCEDURE AddReview(
+  IN p_ReviewText TEXT,
+  IN p_Evaluation INT,
+  IN p_ClientId INT,
+  IN p_FruitId INT
+)
+AS $$
+BEGIN
+  INSERT INTO Reviews (review_text, Evaluation, Client_Id, Fruit_Id)
+  VALUES (p_ReviewText, p_Evaluation, p_ClientId, p_FruitId);
+END;
+$$ LANGUAGE plpgsql;
+
+CALL AddReview('Great fruit!', 5, 1, 21);
+
+CREATE OR REPLACE PROCEDURE UpdateFruitPriceByPercentage(
+  IN p_FruitId INT,
+  IN p_Percentage DECIMAL
+)
+AS $$
+BEGIN
+  UPDATE Fruits
+  SET Price = p_Percentage
+  WHERE Id = p_FruitId;
+END;
+$$ LANGUAGE plpgsql;
+
+CALL UpdateFruitPriceByPercentage(21, 5); 
+
+CREATE OR REPLACE PROCEDURE GetTotalOrderAmountForClient(
+  IN p_ClientId INT,
+  OUT p_TotalAmount INT
+)
+AS $$
+BEGIN
+  SELECT SUM(Total_price)
+  INTO p_TotalAmount
+  FROM Orders
+  WHERE Client_Id = p_ClientId;
+END;
+$$ LANGUAGE plpgsql;
+
+call GetTotalOrderAmountForClient(2, null)
+
+CREATE OR REPLACE PROCEDURE GetEmployeeInfo(
+  IN p_EmployeeId INT,
+  OUT p_EmployeeName VARCHAR(100),
+  OUT p_WorkStartTime TIME,
+  OUT p_WorkEndTime TIME
+)
+AS $$
+BEGIN
+  SELECT U.First_Name || ' ' || U.Last_Name, W.start_work, W.end_work
+  INTO p_EmployeeName, p_WorkStartTime, p_WorkEndTime
+  FROM Employees E
+  JOIN Users U ON E.User_Id = U.Id
+  JOIN Work_time W ON E.Work_time_Id = W.Id
+  WHERE E.Id = p_EmployeeId;
+END;
+$$ LANGUAGE plpgsql;
+
+call GetEmployeeInfo(1, null, null, null)
+
+CREATE OR REPLACE PROCEDURE UpdateUserRole(
+  IN p_UserId INT,
+  IN p_NewRoleId INT
+)
+AS $$
+BEGIN
+  UPDATE Users
+  SET Role_Id = p_NewRoleId
+  WHERE Id = p_UserId;
+END;
+$$ LANGUAGE plpgsql;
+
+call updateUserRole(16, 1)
+
+CREATE OR REPLACE PROCEDURE DeleteLowRatedReviewsForAllFruits()
+AS $$
+BEGIN
+  DELETE FROM Reviews
+  WHERE Evaluation <= 2;
+END;
+$$ LANGUAGE plpgsql;
+
+call DeleteLowRatedReviewsForAllFruits()
+
+

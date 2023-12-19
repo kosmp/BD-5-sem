@@ -1,0 +1,152 @@
+
+CREATE TABLE Producers
+(
+	Id serial primary key not null,
+	Name varchar(50) not null,
+	Country varchar(50) not null
+);
+
+CREATE TABLE Fruits(
+	Id serial primary key not null,
+	Name varchar(50) not null,
+	Creation_date date not null,
+	Price integer not null,
+	Expiration_date integer not null,
+	Producer_Id integer not null,
+	FOREIGN KEY (Producer_Id) REFERENCES Producers (Id) ON DELETE CASCADE
+);
+
+CREATE TABLE Roles (
+	Id serial primary key not null,
+	Role_Name VARCHAR(25) UNIQUE NOT NULL
+);
+
+CREATE TABLE Users (
+	Id serial primary key not null,
+	First_Name VARCHAR(50) NOT NULL,
+   	Last_Name VARCHAR(50) NOT NULL,
+    	Phone CHAR(13) CHECK (Phone LIKE '+375[0-9]{9}') NOT NULL,
+    	Password VARCHAR(50) NOT NULL,
+	Role_Id integer NOT NULL,
+	FOREIGN KEY (Role_Id) REFERENCES Roles (Id) ON DELETE CASCADE
+);
+
+CREATE TABLE Clients (
+	Id serial primary key not null,
+	Address VARCHAR(100) NOT NULL,
+   	User_Id integer unique NOT NULL,
+	FOREIGN KEY (User_Id) REFERENCES Users (Id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE Orders (
+	Id SERIAL primary key not null,
+	Creation_date DATE NOT NULL,
+    	Total_price INT NOT NULL,
+   	Item_quantity INT NOT NULL,
+	Client_Id integer NOT NULL,
+	FOREIGN KEY (Client_Id) REFERENCES Clients (Id) ON DELETE CASCADE,
+  	Fruit_Id integer NOT NULL,
+	FOREIGN KEY (Fruit_Id) REFERENCES Fruits (Id) ON DELETE CASCADE
+
+);
+
+CREATE TABLE Reviews (
+	Id SERIAL primary key not null,
+	review_text TEXT NOT NULL,
+    	Evaluation INT NOT NULL,
+   	Client_Id integer NOT NULL,
+	FOREIGN KEY (Client_Id) REFERENCES Clients (Id) ON DELETE CASCADE,
+  	Fruit_Id integer NOT NULL,
+	FOREIGN KEY (Fruit_Id) REFERENCES Fruits (Id) ON DELETE CASCADE
+);
+
+CREATE TABLE Work_time (
+	Id SERIAL primary key not null,
+	start_work time not null,
+	end_work time not null
+);
+
+CREATE TABLE Employees (
+	Id SERIAL primary key not null,
+	Salary INT NOT NULL,
+	User_Id integer NOT NULL,
+	FOREIGN KEY (User_Id) REFERENCES Users (Id) ON DELETE CASCADE,
+  	Work_time_Id integer NOT NULL,
+	FOREIGN KEY (Work_time_Id) REFERENCES Work_Time (Id) ON DELETE CASCADE
+);
+
+CREATE TABLE Delivery (
+	Id SERIAL primary key not null,
+    	Delivery_date timestamp NOT NULL,
+	Order_Id integer unique NOT NULL,
+	FOREIGN KEY (Order_Id) REFERENCES Orders (Id) ON DELETE CASCADE
+);
+
+CREATE TABLE Positions (
+	Id SERIAL primary key not null,
+	Name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE Positions_Employees (
+	Id SERIAL primary key not null,
+	Position_Id integer NOT NULL,
+	FOREIGN KEY (Position_Id) REFERENCES Positions (Id) ON DELETE CASCADE,
+  	Employee_Id integer NOT NULL,
+	FOREIGN KEY (Employee_Id) REFERENCES Employees (Id) ON DELETE CASCADE
+);
+
+
+CREATE UNIQUE INDEX idx_unique_user_first_name ON Users (first_name);
+CREATE INDEX idx_fruit_id ON Fruits (id);
+CREATE INDEX idx_producer_id ON Producers (id);
+CREATE INDEX idx_client_id ON Clients (id);
+CREATE INDEX idx_employee_id ON Employees (id);
+CREATE INDEX id_orser_id ON Orders (id);
+CREATE INDEX idx_position_id ON Positions (id);
+CREATE INDEX idx_review_id ON Reviews (id);
+
+
+INSERT INTO work_time (start_work, end_work)
+VALUES
+	('00:00', '08:00'),
+   	('08:00', '16:00'),
+	('16:00', '00:00');
+
+
+INSERT INTO Positions (Name)
+VALUES
+  ('Manager'),
+  ('Sales Representative'),
+  ('Cashier'),
+  ('Storekeeper'),
+  ('Quality Control Specialist'),
+  ('Delivery Driver'),
+  ('Packer'),
+  ('Accountant'),
+  ('Assistant Manager'),
+  ('Warehouse Supervisor');
+
+
+INSERT INTO Roles (role_name)
+VALUES
+	('Admin'),
+	('Client'),
+	('Employee');
+
+
+
+
+ALTER TABLE users
+DROP COLUMN phone
+
+
+
+ALTER TABLE Users
+ADD Phone VARCHAR(13) NOT NULL
+
+
+INSERT INTO users (first_name, last_name, phone, password, role_ID)
+VALUES
+  ('Maria', 'Smirnova', '+375291111111', '43534t4334', 2),
+  ('Oleg', 'Ivanov', '+375442222222', '64363464fd', 1);
